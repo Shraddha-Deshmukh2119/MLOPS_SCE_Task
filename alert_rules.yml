@@ -1,0 +1,31 @@
+
+groups:
+  - name: windows-laptop-alerts
+    rules:
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(windows_cpu_time_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for 2 minutes."
+
+      - alert: LowAvailableMemory
+        expr: windows_memory_available_bytes / windows_cs_physical_memory_bytes * 100 < 15
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low available RAM"
+          description: "Available memory is below 15%."
+
+      - alert: WindowsExporterDown
+        expr: up{job="windows-laptop"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Windows Exporter is down"
+          description: "Prometheus cannot scrape Windows Exporter."
